@@ -13,7 +13,6 @@ nltk.download('punkt')
 
 def app():
     st.title("String Analysis")
-
     # Function to identify questions and remove "Welcome @"
     def is_question(text):
         if isinstance(text, str):
