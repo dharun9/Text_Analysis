@@ -18,19 +18,59 @@ def app():
     def is_question(text):
         if isinstance(text, str):
             text = re.sub(r'^Welcome @', '', text)  # Remove "Welcome @" from the beginning
-            return text.strip().endswith('?')
+            text = text.strip()  # Remove leading and trailing spaces
+
+            # Define a list of common question words and articles
+            question_words = ["how", "what", "who", "where", "why"]
+            articles = ["the", "a"]
+
+            # Split the text into words
+            words = text.split()
+
+            # Check if the last word ends with a question mark
+            if text.endswith('?'):
+                return True
+
+            # Check if the text starts with a common question word or article
+            if words[0].lower() in question_words or words[0].lower() in articles:
+                return True
+
         return False
 
     def clean_text(text):
-        # Define patterns to remove
         patterns_to_remove = [
-            r'Saravanan Sir Kct added.*',          # Remove "Saravanan Sir Kct added" and following text
-            r'Welcome to the group, Thanks for adding.*',  # Remove "Welcome to the group, Thanks for adding" and following text
-            r'Your security code with the.*',      # Remove "Your security code with the" and following text
-            r'Welcome @',   
-            r'Thank you 🙂 Saravanan Sir Kct added \+',          # Remove "Thank you 🙂 Saravanan Sir Kct added +"
-            r'Welcome @',                      # Remove "Welcome @"
-            r'[^a-zA-Z?]',                     # Remove non-alphabet characters except "?"
+            r'Saravanan Sir Kct added.*',
+            r'Welcome to the group, Thanks for adding.*',
+            r'Your security code with the.*',
+            r'added to this group',
+            r'Media omitted',
+            r'thanks',
+            r'thank you',
+            r'Welcome',
+            r'Welcome to the group',
+            r'Thanks for adding to the group',
+            r'Thanks for adding me to this group',
+            r'Saravanan Sir Kct',
+            r'<@\d+>',  # Remove integers in the format <@integer>
+            r'Thanks for adding',
+            r'Thanks for adding me to this group',
+            r'Thank you',
+            r'Thank you.',
+            r'@',
+            r'Saravanan Sir Kct added<@integer>',
+            r'You deleted this message',
+            r'Mrs to the Group',
+            r'Mr to the Group',
+            r'Dr. to the group',
+            r'This message was deleted',
+            r'Thank you sir.',
+            r'Thank you sir',
+            r'Thanks a lot',
+            r'Thanks bro',
+            r'This message was deleted Your security code with Shyamsunder FT BK  changed. Tap to learn more.',
+            r'Your security code',
+            r'Tap to learn more.',
+            r'Please contact me sir'
         ]
 
         # Apply each pattern for removal
@@ -38,9 +78,9 @@ def app():
             text = re.sub(pattern, ' ', text)  # Replace removed patterns with a space
 
         # Replace multiple spaces with a single space
-            text = re.sub(r'\s+', ' ', text)
+        text = re.sub(r'\s+', ' ', text)
 
-            return text.strip()
+        return text.strip()
     # Function to extract themes from questions using NLTK
     def extract_theme(question):
         # Tokenize the question
@@ -99,6 +139,7 @@ def app():
     uploaded_file = st.file_uploader("Upload an XLSX file", type=["xlsx"])
     if uploaded_file is not None:
         df = pd.read_excel(uploaded_file)
+        st.session_state.df = df 
 
 
         # Initialize variables to store data
@@ -149,6 +190,7 @@ def app():
                     current_senders.add(str(sender))  # Convert the sender to a string and add it to the set of senders
 
         # Add the last question and its answers
+        # Add the last question and its answers
         if current_question:
             dates.append(current_date)
             questions.append(current_question)
@@ -165,10 +207,13 @@ def app():
             qa_df.rename(columns={'Answers': 'Answer'}, inplace=True)
             qa_df['Questions'] = qa_df['Questions'].apply(clean_text)
             qa_df['Answer'] = qa_df['Answer'].apply(clean_text)
-     # Check if 'qa_df' is defined and not empty
-    if 'qa_df' in locals() and not qa_df.empty:
-        st.write("Displaying Data:")
-        st.write(qa_df)
+
+            # Filter out rows with blank answers
+            qa_df = qa_df[qa_df['Answer'] != '']
+            # Check if 'qa_df' is defined and not empty
+            if 'qa_df' in locals() and not qa_df.empty:
+                st.write("Displaying Data:")
+                st.write(qa_df)
 
 
         # Add a button to download the displayed and cleaned data as an Excel file
