@@ -22,7 +22,11 @@ def app():
     nltk.download('stopwords')
 
     # Streamlit UI
-    st.title("Filter and Process Excel Data")
+    st.title("Agricultural related Classification")
+    
+    # Initialize df if it's not already in session_state
+    if 'df' not in st.session_state:
+        st.session_state.df = None
 
     df = st.session_state.df
 

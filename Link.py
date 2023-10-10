@@ -30,46 +30,40 @@ def clean_text(text):
     return text
 
 def app():
-    st.title("URLs with Associated Text")
+    st.subheader("Links associated with Data")
+    df = st.session_state.df
 
-    # Upload a dataset
-    uploaded_file = st.file_uploader("Upload an XLSX file", type=["xlsx"])
-    if uploaded_file is not None:
-        df = pd.read_excel(uploaded_file)
+    # Extract URLs and their associated text from the "Message" column
+    df['URLs with Text'] = df['Message'].apply(extract_urls_with_text)
 
-        # Extract URLs and their associated text from the "Message" column
-        df['URLs with Text'] = df['Message'].apply(extract_urls_with_text)
+    # Clean text in the "URLs with Text" column
+    df['URLs with Text'] = df['URLs with Text'].apply(lambda x: [clean_text(item) for item in x])
 
-        # Clean text in the "URLs with Text" column
-        df['URLs with Text'] = df['URLs with Text'].apply(lambda x: [clean_text(item) for item in x])
+    # Filter rows where "URLs with Text" is not empty (remove rows with empty lists)
+    df = df[df['URLs with Text'].apply(lambda x: bool(x))]
 
-        # Create a new Excel file with the extracted URLs and associated text
-        new_excel_file = "extracted_urls_with_text.xlsx"
-        df[['Date', 'Time', 'Sender', 'URLs with Text']].to_excel(new_excel_file, index=False)
+    # Create a new Excel file with the extracted URLs and associated text
+    new_excel_file = "extracted_urls_with_text.xlsx"
+    df[['Date', 'Time', 'Sender', 'URLs with Text']].to_excel(new_excel_file, index=False)
 
-        st.success(f"URLs with associated text extracted and saved to {new_excel_file}.")
+    st.success(f"URLs with associated text extracted and saved to {new_excel_file}.")
 
-        # Create separate Excel files for each sender's URLs
-        unique_senders = df['Sender'].unique()
-        for sender in unique_senders:
-            sender_df = df[df['Sender'] == sender].reset_index(drop=True)
-            sender_excel_file = f"{sender}_urls_with_text.xlsx"
-            sender_df[['Date', 'Time', 'Sender', 'URLs with Text']].to_excel(sender_excel_file, index=False)
-        
-            # Add a button to download each sender's URLs as an Excel file
-            if st.button(f"Download {sender}'s URLs with Text as Excel"):
-                # Create a BytesIO object to store the Excel data
-                excel_buffer = io.BytesIO()
+    # Display all the contents of the Excel file in Streamlit
+    st.subheader("Contents of the Excel File")
+    st.dataframe(df)
 
-                # Use pandas to write the sender's URLs DataFrame to the BytesIO object as an Excel file
-                with pd.ExcelWriter(excel_buffer, engine="xlsxwriter") as writer:
-                    sender_df[['Date', 'Time', 'Sender', 'URLs with Text']].to_excel(writer, sheet_name=f"{sender}'s URLs with Text", index=False)
+    # Display a link to download the extracted Excel file
+    st.subheader("Download Extracted URLs with Text as Excel")
+    st.write(f"You can download the extracted URLs with associated text as an Excel file from the following link:")
+    st.markdown(get_download_link(new_excel_file), unsafe_allow_html=True)
 
-                # Set up the BytesIO object for download
-                excel_buffer.seek(0)
-                b64 = base64.b64encode(excel_buffer.read()).decode()
-                href = f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64}" download="{sender}_URLs_with_Text.xlsx">Download {sender}\'s URLs with Text</a>'
-                st.markdown(href, unsafe_allow_html=True)
+def get_download_link(file_path):
+# Create a download link for the given file path
+    with open(file_path, "rb") as file:
+        file_contents = file.read()
+        b64 = base64.b64encode(file_contents).decode()
+        href = f'<a href="data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64}" download="{file_path}">Download {file_path}</a>'
+        return href
 
 if __name__ == "__main__":
     app()

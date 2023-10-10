@@ -56,7 +56,7 @@ multi_app.add_app("Index", Index.app)
 multi_app.add_app("Home", Home.app)
 multi_app.add_app("Analysis", Analysis.app)
 multi_app.add_app("Link", Link.app)
-multi_app.add_app("Theme", Link.app)
+multi_app.add_app("Theme", Theme.app)
 
 
 # Run the selected app
