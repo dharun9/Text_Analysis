@@ -84,21 +84,28 @@ def app():
         theme_column = f'{theme}_related'
         df[theme_column] = df['Preprocessed Message'].apply(lambda x: 1 if has_theme_keywords(x, theme_keywords_list) else 0)
 
-    # Filter DataFrame to keep rows related to at least one theme
-    filtered_df = df[df[[f'{theme}_related' for theme in themes_keywords]].sum(axis=1) > 0]
+    # Slicer to categorize data based on themes
+    st.sidebar.header("Categorize Data")
+    selected_themes = st.sidebar.multiselect("Select Themes", list(themes_keywords.keys()))
 
-    # Remove the specified columns
-    columns_to_remove = ['Preprocessed Message', 'food_related', 'agricultural_related', 'fertilizer_related', 'seeds_related',
-                        'fruits_related', 'pesticide_related', 'plants_related', 'animals_related']
-    filtered_df.drop(columns=columns_to_remove, inplace=True)
+    if not selected_themes:
+        st.sidebar.warning("Select one or more themes to categorize the data.")
+    else:
+        # Filter DataFrame to keep rows related to selected themes
+        selected_theme_columns = [f'{theme}_related' for theme in selected_themes]
+        filtered_df = df[df[selected_theme_columns].sum(axis=1) > 0]
 
-    # Show the filtered DataFrame
-    st.subheader("Filtered Data")
-    st.dataframe(filtered_df)
+        # Remove the specified columns
+        columns_to_remove = ['Preprocessed Message'] + [f'{theme}_related' for theme in themes_keywords if theme not in selected_themes]
+        filtered_df.drop(columns=columns_to_remove, inplace=True)
 
-    # Generate and display the download link
-    download_link = get_table_download_link(filtered_df)
-    st.markdown(download_link, unsafe_allow_html=True)
+        # Show the filtered DataFrame
+        st.subheader("Filtered Data")
+        st.dataframe(filtered_df)
+
+        # Generate and display the download link
+        download_link = get_table_download_link(filtered_df)
+        st.markdown(download_link, unsafe_allow_html=True)
 
 if __name__ == "__main__":
     app()

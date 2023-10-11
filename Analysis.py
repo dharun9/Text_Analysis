@@ -110,7 +110,7 @@ def app():
     message_activity.plot(kind='line', color='green', marker='o', ax=ax)
     ax.set_xlabel("Date", fontsize=14)
     ax.set_ylabel("Message Count", fontsize=14)
-    ax.set_title(f"Message Activity Over the Last {message_activity_days} Days", fontsize=16)
+    ax.set_title(f"Message Activity Over the Years", fontsize=16)
     ax.grid(True)
     plt.xticks(rotation=45, fontsize=12)  # Rotate x-axis labels and set label size
     plt.yticks(fontsize=12)  # Set y-axis label size
@@ -143,22 +143,7 @@ def app():
     plt.tight_layout()
     st.pyplot(fig)
 
-    # Message length vs. time
-    st.subheader("Message Length vs. Time")
-    df['Message Length'] = df['Message'].apply(len)
 
-    # Create a professional-looking line chart for message length vs. time
-    fig, ax = plt.subplots(figsize=(10, 6))
-    df[['Date', 'Message Length']].set_index('Date').plot(
-        kind='line', legend=False, color='purple', ax=ax
-    )
-    ax.set_xlabel("Date", fontsize=14)
-    ax.set_ylabel("Message Length", fontsize=14)
-    ax.set_title("Message Length vs. Time", fontsize=16)
-    plt.xticks(rotation=45, fontsize=12)  # Rotate x-axis labels and set label size
-    plt.yticks(fontsize=12)  # Set y-axis label size
-    plt.tight_layout()
-    st.pyplot(fig)
 
 if __name__ == "__main__":
     app()
