@@ -7,9 +7,20 @@ st.set_page_config(
     page_title="String Analysis",
 )
 
+class CustomSessionState:
+    def __init__(self):
+        self._state = {}
+
+    def get(self, key, default):
+        return self._state.get(key, default)
+
+    def set(self, key, value):
+        self._state[key] = value
+
 class MultiApp:
     def __init__(self):
         self.apps = []
+        self.session_state = CustomSessionState()
 
     def add_app(self, title, func):
         self.apps.append({
@@ -18,8 +29,8 @@ class MultiApp:
         })
 
     def run(self):
-        # Get the selected app from session state or default to "Home"
-        selected_app = st.session_state.get("selected_app", "Home")
+        # Get the selected app from the custom session state or default to "Home"
+        selected_app = self.session_state.get("selected_app", "Home")
 
         # Create a sidebar with the option menu
         with st.sidebar:
@@ -37,8 +48,8 @@ class MultiApp:
                 }
             )
 
-        # Store the selected app in session state
-        st.session_state.selected_app = app
+        # Store the selected app in the custom session state
+        self.session_state.set("selected_app", app)
 
         # Run the selected app
         for item in self.apps:
