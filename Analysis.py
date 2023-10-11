@@ -9,8 +9,7 @@ from matplotlib.ticker import MaxNLocator
 from wordcloud import WordCloud
 from textblob import TextBlob
 
-# Create a function to load data with caching
-@st.cache(allow_output_mutation=True)
+
 def load_data(file):
     return pd.read_excel(file)
 
