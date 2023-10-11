@@ -1,8 +1,9 @@
 import matplotlib
 matplotlib.use("Agg")  # Use the "Agg" backend for Matplotlib
-
 import streamlit as st
 import pandas as pd
+import sys
+print(sys.executable)
 import matplotlib.pyplot as plt
 from collections import Counter
 from matplotlib.ticker import MaxNLocator
