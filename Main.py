@@ -32,20 +32,32 @@ class MultiApp:
         # Get the selected app from the custom session state or default to "Home"
         selected_app = self.session_state.get("selected_app", "Home")
 
-        # Create a sidebar with the option menu
+        # Create a sidebar with the option menu and apply custom styling
         with st.sidebar:
+            st.markdown("### Options")  # Add a title
             app = option_menu(
-                menu_title='Options',
+                menu_title='',
                 options=['Index', 'Home', 'Analysis', 'Link', 'Theme'],
                 icons=['house-fill', 'chat-fill', 'trophy-fill', 'chat-fill', 'info-circle-fill'],
-                menu_icon='chat-text-fill',
+                menu_icon='🚀',  # Replace with a suitable icon
                 default_index=self.apps.index(next(app for app in self.apps if app["title"] == selected_app)),
-                styles={
-                    "container": {"padding": "5!important", "background-color": 'black'},
-                    "icon": {"color": "white", "font-size": "23px"},
-                    "nav-link": {"color": "white", "font-size": "20px", "text-align": "left", "margin": "0px", "---hover-color": "blue"},
-                    "nav-link-selected": {"background-color": "#02ab21"},
+            )
+
+            # Add custom CSS styling for the sidebar
+            st.markdown(
+                """
+                <style>
+                .sidebar .stMultiApp stMarkdown {
+                    background-color: #1E90FF;
+                    color: white;
+                    padding: 10px;
                 }
+                .sidebar .stMultiApp .stOptionMenu {
+                    background-color: #F5F5F5;
+                }
+                </style>
+                """,
+                unsafe_allow_html=True,
             )
 
         # Store the selected app in the custom session state
