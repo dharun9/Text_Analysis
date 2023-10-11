@@ -18,6 +18,19 @@ class MultiApp:
             "title": title,
             "function": func
         })
+        app_functions = {
+        "Index": Index.app,
+        "Home": Home.app,
+        "Analysis": Analysis.app,
+        "Link": Link.app,
+        "Theme": Theme.app,
+    }
+
+    # Set the default selected app
+    selected_app = st.sidebar.selectbox("Select App", list(app_functions.keys()))
+
+    # Run the selected app
+    app_functions[selected_app]()
 
     def run(self):
         # Get the selected app from session state or default to "Home"
