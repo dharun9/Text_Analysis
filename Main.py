@@ -1,5 +1,4 @@
 import streamlit as st
-from streamlit_option_menu import option_menu
 import Index, Home, Analysis, Link, Theme
 
 # Set page configuration
@@ -34,26 +33,18 @@ class MultiApp:
 
         # Create a sidebar with the option menu and apply custom styling
         with st.sidebar:
-            st.markdown("### Options")  # Add a title
-            app = option_menu(
-                menu_title='',
-                options=['Index', 'Home', 'Analysis', 'Link', 'Theme'],
-                icons=['house-fill', 'chat-fill', 'trophy-fill', 'chat-fill', 'info-circle-fill'],
-                menu_icon='🚀',  # Replace with a suitable icon
-                default_index=self.apps.index(next(app for app in self.apps if app["title"] == selected_app)),
-            )
+            st.write("### Options")  # Add a title
+            app = st.selectbox("Select an option:", ['Index', 'Home', 'Analysis', 'Link', 'Theme'],
+                           index=self.apps.index(next(app for app in self.apps if app["title"] == selected_app)))
 
             # Add custom CSS styling for the sidebar
             st.markdown(
                 """
                 <style>
-                .sidebar .stMultiApp stMarkdown {
-                    background-color: #1E90FF;
-                    color: white;
-                    padding: 10px;
-                }
-                .sidebar .stMultiApp .stOptionMenu {
+                .sidebar .stSelectbox {
                     background-color: #F5F5F5;
+                    padding: 10px;
+                    border-radius: 8px;
                 }
                 </style>
                 """,
