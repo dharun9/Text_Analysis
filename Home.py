@@ -8,7 +8,10 @@ import pickle
 import openpyxl
 from nltk.corpus import stopwords
 import io
-import os  # Import the os module to check if the pickle file exists
+import os
+import numpy as np
+np.bool = bool
+
 
 # Download NLTK resources
 nltk.download('stopwords')
