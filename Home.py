@@ -151,6 +151,7 @@ def app():
     uploaded_file = st.file_uploader("Upload an XLSX file", type=["xlsx"])
     if uploaded_file is not None:
         df = pd.read_excel(uploaded_file)
+        session_state = {"df": None}
 
         # Initialize variables to store data
         dates = []
