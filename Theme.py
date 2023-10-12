@@ -25,10 +25,11 @@ def app():
     st.title("Agricultural related Classification")
     
     # Initialize df if it's not already in session_state
-    if 'df' not in st.session_state:
-        st.session_state.df = None
-
-    df = st.session_state.df
+    uploaded_file = st.file_uploader("Upload an XLSX file", type=["xlsx"])
+    if uploaded_file is not None:
+        df = pd.read_excel(uploaded_file)
+    
+ 
 
     # Function to preprocess text
     def preprocess_text(text):

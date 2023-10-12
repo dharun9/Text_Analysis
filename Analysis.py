@@ -7,15 +7,16 @@ print(sys.executable)
 import matplotlib.pyplot as plt
 from collections import Counter
 from matplotlib.ticker import MaxNLocator
+import pickle
 from wordcloud import WordCloud
 from textblob import TextBlob
 
 
-def load_data(file):
-    return pd.read_excel(file)
 
 def app():
-    df = st.session_state.df
+    uploaded_file = st.file_uploader("Upload an XLSX file", type=["xlsx"])
+    if uploaded_file is not None:
+        df = pd.read_excel(uploaded_file)
 
     # Show the DataFrame
     st.subheader("Data")

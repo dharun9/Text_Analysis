@@ -30,8 +30,9 @@ def clean_text(text):
     return text
 
 def app():
-    st.subheader("Links associated with Data")
-    df = st.session_state.df
+    uploaded_file = st.file_uploader("Upload an XLSX file", type=["xlsx"])
+    if uploaded_file is not None:
+        df = pd.read_excel(uploaded_file)
 
     # Extract URLs and their associated text from the "Message" column
     df['URLs with Text'] = df['Message'].apply(extract_urls_with_text)

@@ -4,16 +4,26 @@ import re
 import nltk
 import base64
 import heapq
+import pickle
 import openpyxl
 from nltk.corpus import stopwords
 import io
+import os  # Import the os module to check if the pickle file exists
 
 # Download NLTK resources
 nltk.download('stopwords')
 nltk.download('punkt')
 
+def load_user_uploaded_data():
+    if os.path.exists("user_uploaded_data.pkl"):
+        with open("user_uploaded_data.pkl", 'rb') as file:
+            df = pickle.load(file)
+        return df
+    return None
+
 def app():
     st.title("String Analysis")
+    
 
     # Function to identify questions and remove "Welcome @"
     def is_question(text):
@@ -82,6 +92,7 @@ def app():
         text = re.sub(r'\s+', ' ', text)
 
         return text.strip()
+
     # Function to extract themes from questions using NLTK
     def extract_theme(question):
         # Tokenize the question
@@ -140,8 +151,6 @@ def app():
     uploaded_file = st.file_uploader("Upload an XLSX file", type=["xlsx"])
     if uploaded_file is not None:
         df = pd.read_excel(uploaded_file)
-        st.session_state.df = df 
-
 
         # Initialize variables to store data
         dates = []
@@ -174,8 +183,8 @@ def app():
                     questions.append(current_question)
                     # Remove integers (contact numbers) from the answers and keep only text
                     filtered_answers = [re.sub(r'\d+', '', str(ans)) for ans in current_answers]
-                    answers.append("\n".join(map(str, filtered_answers)))  # Convert filtered answers to strings before joining
-                    senders.append(", ".join(map(str, current_senders)))  # Convert senders set to a comma-separated string
+                    answers.append ("\n".join(map(str, filtered_answers))) # Convert filtered answers to strings before joining
+                    senders.append(", ".join(map(str, current_senders)))  # Convert senders set to a comma-separated string)# Convert senders set to a comma-separated string
                     sent_times.append(current_time)
                     replying_times.append(time)
                     current_answers = []  # Reset the answers list for the new question
@@ -188,9 +197,8 @@ def app():
                 # Add the text as an answer to the current question
                 if current_question:
                     current_answers.append(text)
-                    current_senders.add(str(sender))  # Convert the sender to a string and add it to the set of senders
+                    current_senders.add(str(sender)) # Convert the sender to a string and add it to the set of senders
 
-        # Add the last question and its answers
         # Add the last question and its answers
         if current_question:
             dates.append(current_date)
@@ -198,7 +206,7 @@ def app():
             # Remove integers (contact numbers) from the answers and keep only text
             filtered_answers = [re.sub(r'\d+', '', str(ans)) for ans in current_answers]
             answers.append("\n".join(map(str, filtered_answers)))  # Convert filtered answers to strings before joining
-            senders.append(", ".join(map(str, current_senders)))  # Convert senders set to a comma-separated string
+            senders.append(", ".join(map(str, current_senders))) # Convert senders set to a comma-separated string
             sent_times.append(current_time)
             replying_times.append(time)
 
@@ -211,11 +219,13 @@ def app():
 
             # Filter out rows with blank answers
             qa_df = qa_df[qa_df['Answer'] != '']
+
+            
+
             # Check if 'qa_df' is defined and not empty
             if 'qa_df' in locals() and not qa_df.empty:
                 st.write("Displaying Data:")
                 st.write(qa_df)
-
 
         # Add a button to download the displayed and cleaned data as an Excel file
         if st.button("Download Cleaned Data as Excel"):
@@ -233,7 +243,7 @@ def app():
             st.markdown(href, unsafe_allow_html=True)
     else:
         st.write("Please upload an XLSX file to analyze.")
-
+   
 
 if __name__ == "__main__":
     app()
