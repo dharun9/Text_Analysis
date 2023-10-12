@@ -232,9 +232,7 @@ def app():
                 st.write("Displaying Data:")
                 st.write(qa_df)
 
-        # Add a button to download the displayed and cleaned data as an Excel file
-        if st.button("Download Cleaned Data as Excel"):
-            # Create a BytesIO object to store the Excel data
+    
             excel_buffer = io.BytesIO()
 
             # Use pandas to write the cleaned DataFrame to the BytesIO object as an Excel file
