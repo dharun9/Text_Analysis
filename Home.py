@@ -11,6 +11,7 @@ import io
 import os
 import numpy as np
 np.bool = bool
+np.object = object
 
 
 # Download NLTK resources
