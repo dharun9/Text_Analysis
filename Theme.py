@@ -3,17 +3,35 @@ import pandas as pd
 import re
 import base64
 import nltk
+import io
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 from nltk.tokenize import word_tokenize
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import TruncatedSVD
+import plotly.express as px
 
 # Function to generate a download link for a DataFrame
 def get_table_download_link(df):
     csv = df.to_csv(index=False)
     b64 = base64.b64encode(csv.encode()).decode()  # Bypass pandas DataFrame.to_csv() conversion
     href = f'<a href="data:file/csv;base64,{b64}" download="filtered_data.csv">Download CSV File</a>'
+    return href
+
+def create_bar_chart(data, x_col, y_col, title, filename):
+    fig = px.bar(data, x=x_col, y=y_col, labels={"x": "Sender", "y": "Count"}, title=title)
+    st.plotly_chart(fig)
+
+    # Create a link to download the chart
+    buffer = io.StringIO()
+    fig.write_html(buffer)
+    chart_html = buffer.getvalue()
+    st.markdown(get_download_link(chart_html, filename), unsafe_allow_html=True)
+
+def get_download_link(html, filename):
+    """Generate a link to download the given HTML content."""
+    b64 = base64.b64encode(html.encode()).decode()
+    href = f'<a href="data:text/html;base64,{b64}" download="{filename}.html">Download {filename}</a>'
     return href
 
 def app():
@@ -107,6 +125,12 @@ def app():
         # Generate and display the download link
         download_link = get_table_download_link(filtered_df)
         st.markdown(download_link, unsafe_allow_html=True)
+
+        # Create bar charts for active senders
+        for theme in selected_themes:
+            active_senders = filtered_df.groupby("Sender").size().sort_values(ascending=False).head(10)
+            st.subheader(f"Top 10 Active Senders for '{theme}' Theme")
+            create_bar_chart(active_senders, x_col=active_senders.index, y_col=active_senders.values, title=f"Top 10 Active Senders for '{theme}' Theme", filename=f"active_senders_{theme}")
 
 if __name__ == "__main__":
     app()
