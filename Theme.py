@@ -47,8 +47,6 @@ def app():
     if uploaded_file is not None:
         df = pd.read_excel(uploaded_file)
     
- 
-
     # Function to preprocess text
     def preprocess_text(text):
         # Tokenization
@@ -97,40 +95,32 @@ def app():
                 return True
         return False
 
-    # Filter LSA topics based on themes and create theme-related columns
-    for theme in themes_keywords:
-        theme_keywords_list = themes_keywords[theme]
-        theme_column = f'{theme}_related'
-        df[theme_column] = df['Preprocessed Message'].apply(lambda x: 1 if has_theme_keywords(x, theme_keywords_list) else 0)
-
     # Slicer to categorize data based on themes
     st.sidebar.header("Categorize Data")
-    selected_themes = st.sidebar.multiselect("Select Themes", list(themes_keywords.keys()))
+    selected_themes = st.sidebar.multiselect("Select Themes", list(themes_keywords.keys()), default=None)
 
-    if not selected_themes:
-        st.sidebar.warning("Select one or more themes to categorize the data.")
-    else:
-        # Filter DataFrame to keep rows related to selected themes
-        selected_theme_columns = [f'{theme}_related' for theme in selected_themes]
-        filtered_df = df[df[selected_theme_columns].sum(axis=1) > 0]
-
-        # Remove the specified columns
-        columns_to_remove = ['Preprocessed Message'] + [f'{theme}_related' for theme in themes_keywords if theme not in selected_themes]
-        filtered_df.drop(columns=columns_to_remove, inplace=True)
+    if selected_themes:
+        selected_theme = selected_themes[0]  # Use the first selected theme
+        
+        # Filter DataFrame to keep rows related to the selected theme
+        filtered_df = df[df['Preprocessed Message'].apply(lambda x: has_theme_keywords(x, themes_keywords[selected_theme]))]
 
         # Show the filtered DataFrame
         st.subheader("Filtered Data")
         st.dataframe(filtered_df)
 
+        # Print the count of data points for the selected theme
+        theme_count = len(filtered_df)
+        st.write(f"Number of data points for '{selected_theme}' Theme: {theme_count}")
+
         # Generate and display the download link
         download_link = get_table_download_link(filtered_df)
         st.markdown(download_link, unsafe_allow_html=True)
 
-        # Create bar charts for active senders
-        for theme in selected_themes:
-            active_senders = filtered_df.groupby("Sender").size().sort_values(ascending=False).head(10)
-            st.subheader(f"Top 10 Active Senders for '{theme}' Theme")
-            create_bar_chart(active_senders, x_col=active_senders.index, y_col=active_senders.values, title=f"Top 10 Active Senders for '{theme}' Theme", filename=f"active_senders_{theme}")
+        # Create a bar chart for active senders
+        active_senders = filtered_df.groupby("Sender").size().sort_values(ascending=False).head(10)
+        st.subheader(f"Top 10 Active Senders for '{selected_theme}' Theme")
+        create_bar_chart(active_senders, x_col=active_senders.index, y_col=active_senders.values, title=f"Top 10 Active Senders for '{selected_theme}' Theme", filename=f"active_senders_{selected_theme}")
 
 if __name__ == "__main__":
     app()
